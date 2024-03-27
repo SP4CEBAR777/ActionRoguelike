@@ -2,7 +2,10 @@
 
 #include "BCharacter.h"
 #include "Camera/CameraComponent.h"
+#include "GameFramework/MovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "PaperFlipbookComponent.h"
 
 // Sets default values
 ABCharacter::ABCharacter() {
@@ -10,10 +13,14 @@ ABCharacter::ABCharacter() {
   // improve performance if you don't need it.
   PrimaryActorTick.bCanEverTick = true;
 
+  SpriteComp = CreateDefaultSubobject<UPaperFlipbookComponent>("SpriteComp");
+  SpriteComp->SetupAttachment(RootComponent);
   SpringArmComp = CreateDefaultSubobject<USpringArmComponent>("SpringArmComp");
   CameraComp = CreateDefaultSubobject<UCameraComponent>("CameraComp");
   SpringArmComp->SetupAttachment(RootComponent);
   CameraComp->SetupAttachment(SpringArmComp);
+
+  bIsMovingX = false;
 }
 
 // Called when the game starts or when spawned
@@ -34,8 +41,25 @@ void ABCharacter::SetupPlayerInputComponent(
 }
 
 void ABCharacter::MoveForward(float value) {
-  AddMovementInput(GetActorForwardVector(), value);
+  if (!bIsMovingY && value != 0.0f) {
+    bIsMovingX = true;
+    FRotator ControlRot = GetControlRotation();
+    ControlRot.Pitch = 0;
+    ControlRot.Roll = 0;
+    AddMovementInput(ControlRot.Vector(), value);
+  } else {
+    bIsMovingX = false;
+  }
 }
 void ABCharacter::MoveRight(float value) {
-  AddMovementInput(GetActorRightVector(), value);
+  if (!bIsMovingX && value != 0.0f) {
+    bIsMovingY = true;
+    FRotator ControlRot = GetControlRotation();
+    ControlRot.Pitch = 0;
+    ControlRot.Roll = 0;
+    FVector RightVector = FRotationMatrix(ControlRot).GetScaledAxis(EAxis::Y);
+    AddMovementInput(RightVector, value);
+  } else {
+    bIsMovingY = false;
+  }
 }

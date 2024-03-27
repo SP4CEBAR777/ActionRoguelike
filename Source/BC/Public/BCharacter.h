@@ -8,6 +8,7 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UPaperFlipbookComponent;
 
 UCLASS()
 class BC_API ABCharacter : public ACharacter {
@@ -23,6 +24,12 @@ protected:
 
   UPROPERTY(VisibleAnywhere)
   USpringArmComponent *SpringArmComp;
+
+  UPROPERTY(VisibleAnywhere)
+  UPaperFlipbookComponent *SpriteComp;
+
+  bool bIsMovingX;
+  bool bIsMovingY;
 
   // Called when the game starts or when spawned
   virtual void BeginPlay() override;
